@@ -8,6 +8,12 @@ import pyperclip
 # A constant for specifying the file to be used for accounts storage
 data_file = "data.txt"
 
+INPUT = "#27374D"
+INPUT_BACKGROUND = "#DDE6ED"
+BACKGROUND = "#9DB2BF"
+FONT_NAME = "Consolas"
+BUTTON = "#526D82"
+
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 
 
@@ -154,49 +160,54 @@ def save(data_file=data_file):
 # Create a tkinter window with title and size
 window = tk.Tk()
 window.title("Password Manager")
-window.config(padx=50, pady=50)
+window.config(padx=50, pady=50, bg=BACKGROUND)
 
 # Use the logo image to be displayed on screen
 logo_image = tk.PhotoImage(file="./logo.png")
-canvas = tk.Canvas(width=200, height=200)
+canvas = tk.Canvas(width=200, height=200, bg=BACKGROUND, highlightthickness=0)
 canvas.create_image(100, 100, image=logo_image)
 canvas.grid(row=0, column=1)
 
 # Create a label for website prompt
-website_label = tk.Label(text="Website: ")
-website_label.grid(row=1, column=0)
+website_label = tk.Label(text="Website", font=(
+    FONT_NAME, 16), bg=BACKGROUND, fg=INPUT)
+website_label.grid(row=1, column=0, sticky="w")
 
 # Create a text box to hold website string
-website_entry = tk.Entry(width=43)
+website_entry = tk.Entry(width=44, font=(16), fg=INPUT, bg=INPUT_BACKGROUND)
 website_entry.grid(row=1, column=1, columnspan=3, sticky="w")
 website_entry.focus()
 
 # Create a label for email prompt
-email_username_label = tk.Label(text="Email/Username: ")
-email_username_label.grid(row=2, column=0)
+email_username_label = tk.Label(
+    text="Email/Username", font=(FONT_NAME, 16), bg=BACKGROUND, fg=INPUT)
+email_username_label.grid(row=2, column=0, sticky="w")
 
 # Create a text box to hold email string
-email_username_entry = tk.Entry(width=43)
+email_username_entry = tk.Entry(
+    width=44, font=(16), fg=INPUT, bg=INPUT_BACKGROUND)
 email_username_entry.grid(row=2, column=1, columnspan=3, sticky="w")
 email_username_entry.insert(index=0, string="youremail@example.com")
 
 # Create a label for password prompt
-password_label = tk.Label(text="Password: ")
-password_label.grid(row=3, column=0)
+password_label = tk.Label(text="Password", font=(
+    FONT_NAME, 16), bg=BACKGROUND, fg=INPUT)
+password_label.grid(row=3, column=0, sticky="w")
 
 # Create a text box to hold password string
-password_entry = tk.Entry(width=22)
+password_entry = tk.Entry(width=25, font=(16), fg=INPUT, bg=INPUT_BACKGROUND)
 password_entry.grid(row=3, column=1, sticky="w")
 
 # Create a button for generating password
 generate_password_btn = tk.Button(
-    text="Generate Password", width=16, command=generate_password
+    text="Generate Password", width=18, command=generate_password, font=(FONT_NAME, 14), bg=BUTTON, fg=INPUT_BACKGROUND
 )
-generate_password_btn.grid(row=3, column=1, columnspan=2, sticky="e")
+generate_password_btn.grid(row=3, column=1, columnspan=3, sticky="e", pady=5)
 
 # Create a button to add details in a text file
-add_btn = tk.Button(text="Add", width=36, command=save)
-add_btn.grid(row=4, column=1, columnspan=2, sticky="w")
+add_btn = tk.Button(text="Add", width=43, command=save, font=(
+    FONT_NAME), bg=BUTTON, fg=INPUT_BACKGROUND)
+add_btn.grid(row=4, column=1, columnspan=3, sticky="e", pady=5)
 
 
 window.mainloop()
