@@ -4,10 +4,12 @@ import tkinter as tk
 from tkinter import messagebox
 import random
 import pyperclip
+import json
 
 # A constant for specifying the file to be used for accounts storage
-data_file = "data.txt"
+data_file = "data.json"
 
+# Color constants
 INPUT = "#27374D"
 INPUT_BACKGROUND = "#DDE6ED"
 BACKGROUND = "#9DB2BF"
@@ -15,7 +17,6 @@ FONT_NAME = "Consolas"
 BUTTON = "#526D82"
 
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
-
 
 def generate_password():
     """
@@ -113,6 +114,31 @@ def generate_password():
     pyperclip.copy(password)
 
 
+# ---------------------------- SEARCH PASSWORD ------------------------------- #
+
+def search_password():
+    """
+    Gets the data of input entry box and checks through that data in json file. Returns the credentials if the website exists in data otherwise displays error.
+    """
+    website = website_entry.get().title()
+    try:
+        with open(data_file, 'r') as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        messagebox.showinfo(title="Oops!", message="No data file found!")
+    except json.decoder.JSONDecodeError:
+        messagebox.showinfo(
+            title="Oops!", message="No data in the data file yet!")
+    else:
+        if website in data:
+            email = data[website]["email"]
+            password = data[website]["password"]
+            messagebox.showinfo(
+                title=website, message=f"Email: {email}\nPassword: {password}")
+        else:
+            messagebox.showinfo(title="Not Found",
+                                message="Desired Data Does not exists")
+
 # ---------------------------- SAVE PASSWORD ------------------------------- #
 
 
@@ -130,22 +156,38 @@ def save(data_file=data_file):
 
     # If any of field is empty, show warning to the user
     if website == "" or password == "":
-        messagebox.showwarning(
-            title="Oops!", message="Please don't leave any fields empty!"
-        )
+        messagebox.showwarning(title="Oops!", message="Please don't leave any fields empty!")
         return
 
     # If everything is ok, notify user with the details to be entered before actually entering them in file for better user experience
     is_ok = messagebox.askyesno(
         title=website,
-        message=f"These are the details entered:\nEmail: {email}\nPassword: {password}\nIs it okay to save?",
-    )
+        message=f"These are the details entered:\nEmail: {email}\nPassword: {password}\nIs it okay to save?")
 
     # If details seem fine to the user
     if is_ok:
-        # Open the text file for appending purposes and add the details there
-        with open(data_file, "a") as file:
-            file.write(f"{website} | {email} | {password}\n")
+        current_data = {
+            website: {
+                "email": email,
+                "password": password
+            }
+        }
+
+        try:
+            with open(data_file, "r") as file:
+                # Reading old data
+                data = json.load(file)
+        except FileNotFoundError:
+            data = current_data
+        except json.decoder.JSONDecodeError:
+            data = current_data
+        else:
+            # Updating old data with new data
+            data.update(current_data)
+        finally:
+            # Open the json file for writing purposes and add the details there
+            with open(data_file, "w") as file:
+                json.dump(data, file, indent=4)
 
         # Show the message information to user that the record has been entered successfully
         messagebox.showinfo(
@@ -174,9 +216,13 @@ website_label = tk.Label(text="Website", font=(
 website_label.grid(row=1, column=0, sticky="w")
 
 # Create a text box to hold website string
-website_entry = tk.Entry(width=44, font=(16), fg=INPUT, bg=INPUT_BACKGROUND)
-website_entry.grid(row=1, column=1, columnspan=3, sticky="w")
+website_entry = tk.Entry(width=25, font=(FONT_NAME, 16), fg=INPUT, bg=INPUT_BACKGROUND)
+website_entry.grid(row=1, column=1, columnspan=2, sticky="w")
 website_entry.focus()
+
+search_btn = tk.Button(text="Search", width=18, command=search_password, font=(
+    FONT_NAME, 12), bg=BUTTON, fg=INPUT_BACKGROUND)
+search_btn.grid(row=1, column=2, sticky="e", pady=5)
 
 # Create a label for email prompt
 email_username_label = tk.Label(
@@ -185,9 +231,10 @@ email_username_label.grid(row=2, column=0, sticky="w")
 
 # Create a text box to hold email string
 email_username_entry = tk.Entry(
-    width=44, font=(16), fg=INPUT, bg=INPUT_BACKGROUND)
-email_username_entry.grid(row=2, column=1, columnspan=3, sticky="w")
-email_username_entry.insert(index=0, string="youremail@example.com")
+    width=44, font=(FONT_NAME, 16), fg=INPUT, bg=INPUT_BACKGROUND)
+email_username_entry.grid(row=2, column=1, columnspan=2, sticky="w")
+email_username_entry.insert(
+    index=0, string="developer-hassan@yourdeveloper.com")
 
 # Create a label for password prompt
 password_label = tk.Label(text="Password", font=(
@@ -195,19 +242,18 @@ password_label = tk.Label(text="Password", font=(
 password_label.grid(row=3, column=0, sticky="w")
 
 # Create a text box to hold password string
-password_entry = tk.Entry(width=25, font=(16), fg=INPUT, bg=INPUT_BACKGROUND)
+password_entry = tk.Entry(width=25, font=(FONT_NAME, 16), fg=INPUT, bg=INPUT_BACKGROUND)
 password_entry.grid(row=3, column=1, sticky="w")
 
 # Create a button for generating password
 generate_password_btn = tk.Button(
-    text="Generate Password", width=18, command=generate_password, font=(FONT_NAME, 14), bg=BUTTON, fg=INPUT_BACKGROUND
+    text="Generate Password", width=18, command=generate_password, font=(FONT_NAME, 12), bg=BUTTON, fg=INPUT_BACKGROUND
 )
-generate_password_btn.grid(row=3, column=1, columnspan=3, sticky="e", pady=5)
+generate_password_btn.grid(row=3, column=2, sticky="e", pady=5)
 
 # Create a button to add details in a text file
-add_btn = tk.Button(text="Add", width=43, command=save, font=(
-    FONT_NAME), bg=BUTTON, fg=INPUT_BACKGROUND)
-add_btn.grid(row=4, column=1, columnspan=3, sticky="e", pady=5)
-
+add_btn = tk.Button(text="Add", width=52, command=save, font=(
+    FONT_NAME, 14), bg=BUTTON, fg=INPUT_BACKGROUND)
+add_btn.grid(row=4, column=1, columnspan=3, sticky="w", pady=5)
 
 window.mainloop()
